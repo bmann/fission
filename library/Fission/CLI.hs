@@ -1,6 +1,7 @@
 module Fission.CLI (cli) where
 
-import           Options.Applicative.Simple
+import           Options.Applicative
+
 import qualified RIO.Text                     as Text
 
 import qualified Fission.Internal.CLI.Meta    as Meta
@@ -9,7 +10,7 @@ import           Fission.Prelude
 import           Fission.CLI.Config.Base
 import           Fission.CLI.Config.Connected
 
-import           Fission.CLI.Command          as Command
+-- import           Fission.CLI.Command          as Command
 import           Fission.CLI.Display.Error
 
 import qualified Fission.CLI.Command.App.Init as App.Init
@@ -21,31 +22,13 @@ import qualified Fission.CLI.Command.Whoami   as Whoami
 
 cli :: MonadIO m => BaseConfig -> m ()
 cli baseCfg = liftIO do
-  (_, runCLI) <- simpleOptions version summary detail noop do
-    runBase_ Setup.cmd
+  Foo <- liftIO $ execParser $ info (subparser $ command "bar"  (info fooParser ( progDesc "Add a file to the repository" ))) mempty
+  return ()
 
-    runConnected_ Whoami.cmd
-    runConnected_ Up.cmd
-    runConnected_ Down.cmd
-    runConnected_ App.Init.cmd
-    runConnected_ (Watch.cmd (void . runConnected baseCfg))
+data Foo = Foo
 
-  runCLI
-
-  where
-    runBase_ :: Command FissionBase input () -> Command.Leaf
-    runBase_ = runWith (runBase baseCfg)
-
-    runConnected_ :: Command FissionConnected input () -> Command.Leaf
-    runConnected_ =
-      runWith \actn -> do
-        result <- runConnected baseCfg do
-          logDebug @Text "Setting up connected"
-          actn
-
-        case result of
-          Right _  -> return ()
-          Left err -> void . runConnected baseCfg $ put' err
+fooParser :: Applicative f => f Foo
+fooParser = pure Foo
 
 summary :: String
 summary = "CLI to interact with Fission services"
