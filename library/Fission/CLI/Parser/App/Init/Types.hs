@@ -1,5 +1,4 @@
--- FIXME REMOVE
-module Fission.CLI.Command.App.Init.Types
+module Fission.CLI.Parser.App.Init.Types
   ( Options          (..)
   , OptionalFilePath (..)
   ) where
@@ -10,9 +9,11 @@ import           Fission.Prelude
 data Options = Options
   { appDir   :: !FilePath
   , buildDir :: !(Maybe FilePath)
-  }
+  } deriving (Show, Eq)
 
-newtype OptionalFilePath = OptionalFilePath (Maybe FilePath)
+newtype OptionalFilePath
+  = OptionalFilePath (Maybe FilePath)
+  deriving (Show, Eq)
 
 instance IsString OptionalFilePath where
   fromString = OptionalFilePath . \case

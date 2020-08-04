@@ -1,6 +1,7 @@
 let
-  sources = import ./nix/sources.nix;
-  pkgs    = import sources.nixpkgs {};
+  sources  = import ./nix/sources.nix;
+  pkgs     = import sources.nixpkgs  {};
+  unstable = import sources.unstable {};
 in
 
 pkgs.mkShell {
@@ -15,8 +16,8 @@ pkgs.mkShell {
     pkgs.postgresql
 
     # Haskell
-    pkgs.ghcid
-    pkgs.stack
-    pkgs.stylish-haskell
+    unstable.ghcid
+    unstable.stack
+    unstable.stylish-haskell
   ];
 }

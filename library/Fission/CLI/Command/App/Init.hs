@@ -6,17 +6,17 @@ module Fission.CLI.Command.App.Init
   , appInit
   ) where
 
-import qualified System.Console.ANSI as ANSI
 import qualified Crypto.PubKey.Ed25519                  as Ed25519
 import           Options.Applicative
-import           RIO.FilePath ((</>))
+import           RIO.FilePath                           ((</>))
+import qualified System.Console.ANSI                    as ANSI
 
+import qualified Fission.Internal.UTF8                  as UTF8
 import           Fission.Prelude
-import qualified Fission.Internal.UTF8 as UTF8
 
 import           Fission.Authorization.ServerDID
-import           Fission.URL
 import           Fission.Error.AlreadyExists.Types
+import           Fission.URL
 
 import           Fission.Web.Auth.Token.Types
 import           Fission.Web.Client
@@ -47,7 +47,7 @@ cmd ::
 cmd = Command
   { command     = cmdTxt
   , description = "Initialize a new Fission app in an existing directory"
-  , argParser   = parseOptions
+  , argParser   = undefined -- FIXME this whole block is getting deleted anyways
   , handler     = appInit
   }
 
@@ -71,8 +71,9 @@ appInit App.Init.Options {appDir, buildDir} = do
 
   case appURL of
     Just url ->
-      CLI.Error.put (AlreadyExists @URL) $ "App already exists as " <> textDisplay url
-     
+      CLI.Error.put (AlreadyExists @URL) $
+        "App already exists as " <> textDisplay url
+
     Nothing ->
       sendRequestM (authClient $ Proxy @App.Create) >>= \case
         Left err ->
@@ -111,26 +112,3 @@ appInit App.Init.Options {appDir, buildDir} = do
             UTF8.putText $ "https://ipfs.runfission.com/ipns/" <> textDisplay appURL' <> "\n"
             ANSI.setSGR [ANSI.Reset]
 
-parseOptions :: Parser App.Init.Options
-parseOptions = do
-  appDir <- strOption $ mconcat
-    [ metavar "PATH"
-    , help    "The file path to initialize the app in (app config, etc)"
-
-    , value   "."
-
-    , long    "app-dir"
-    , short   'a'
-    ]
-
-  OptionalFilePath buildDir <- strOption $ mconcat
-    [ metavar "PATH"
-    , help    "The file path of the assets or directory to sync"
-
-    , value   ""
-
-    , long    "build-dir"
-    , short   'b'
-    ]
-
-  return App.Init.Options {..}
