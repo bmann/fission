@@ -30,6 +30,8 @@ data Foo = Foo
 fooParser :: Applicative f => f Foo
 fooParser = pure Foo
 
+
+
 summary :: String
 summary = "CLI to interact with Fission services"
 
