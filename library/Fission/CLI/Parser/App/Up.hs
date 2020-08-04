@@ -16,12 +16,12 @@ parserWithInfo =
 
 parser :: Parser Up.Options
 parser = do
-  updateData <- switch $ mconcat
+  updateData <- boolOption $ mconcat
     [ long  "data"
     , help  "Upload the data (defaults to true)"
     ]
 
-  updateDNS <- fmap toBoolLenient $ strOption $ mconcat
+  updateDNS <- boolOption $ mconcat
     [ long  "dns"
     , help  "Update DNS (defaults to true)"
     ]
@@ -41,6 +41,9 @@ parser = do
   return Up.Options {..}
 
   where
+    boolOption :: Mod OptionFields Text -> Parser Bool
+    boolOption = fmap toBoolLenient . strOption
+
     toBoolLenient :: Text -> Bool
     toBoolLenient txt =
       let
